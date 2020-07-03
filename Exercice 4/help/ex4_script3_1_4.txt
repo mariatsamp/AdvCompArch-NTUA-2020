@@ -1,0 +1,44 @@
+#change the following paths:
+
+SNIPER_EXE=/home/mary/advcomparch_ex4/sniper-7.3/run-sniper
+SNIPER_CONFIG=/home/mary/advcomparch_ex4/help/ask4.cfg
+OUTPUT_DIR_BASE=/home/mary/advcomparch_ex4/outputs
+LOCKS_DIR=/home/mary/advcomparch_ex4/help/locks
+MAKE_DIR=/home/mary/advcomparch_ex4/help/
+
+
+#MAKE SURE THAT -DREAL FLAG IS SET ON THE Makefile file
+
+declare -a modes=(TAS_CAS TAS_TS TTAS_CAS TTAS_TS MUTEX)
+declare -a grainsizes=(1 10 100)
+declare -a nthreads=(1 2 4)
+
+
+for MODE in "${modes[@]}";do
+
+mkfile_mode="-D${MODE}"
+sed_cmd="sed -i '8s/.*/LFLAG ?= ${mkfile_mode} /' ${MAKE_DIR}/Makefile"
+/bin/bash -c "${sed_cmd}"
+/bin/bash -c "make clean;"
+/bin/bash -c "make;"
+
+echo ${MODE} >> ${OUTPUT_DIR_BASE}/real_system_times.txt
+
+	for GRAINSIZE in "${grainsizes[@]}";do
+		for n in "${nthreads[@]}"; do
+			NTHREADS="${n}"		
+			CMD="${LOCKS_DIR} $NTHREADS 10000000 $GRAINSIZE"
+			echo "${CMD}"
+			#/bin/bash -c "$CMD"
+			echo "-------------------------------"		
+			echo "number of threads:${NTHREADS}"
+			echo "grainsize:${GRAINSIZE}"		
+			echo "-------------------------------"
+			echo Nthreads: ${NTHREADS} , Grainsize: ${GRAINSIZE} >> ${OUTPUT_DIR_BASE}/real_system_times.txt
+			/bin/bash -c "${CMD} >> ${OUTPUT_DIR_BASE}/real_system_times.txt"
+
+		done
+		
+	done
+done
+

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+#Note: Change paths to be the correct for your PC.
+SIM_OUTPUTS=/home/mary/advcomparch_ex4/outputs/3_1
+MCPAT_OUTPUTS=/home/mary/advcomparch_ex4/mcpat_outputs/3_1
+MCPAT_PY_FILE=/home/mary/advcomparch_ex4/sniper-7.3/tools/advcomparch_mcpat.py
+
+declare -a numthreads=(1 2 4 8 16)
+declare -a modes=(MUTEX TAS_CAS TAS_TS TTAS_CAS TTAS_TS)
+
+for n in "${numthreads[@]}"; do
+  for md in "${modes[@]}"; do  
+    cd $SIM_OUTPUTS/${md}/${n}_threads
+    mkdir $MCPAT_OUTPUTS/${md}
+    mkdir $MCPAT_OUTPUTS/${md}/${n}_threads
+    for FOLDER in $(ls); do
+        echo $FOLDER
+	mkdir ${MCPAT_OUTPUTS}/${md}/${n}_threads/${FOLDER}
+        cmd="${MCPAT_PY_FILE} -d ${SIM_OUTPUTS}/${md}/${n}_threads/${FOLDER} -t total -o ${MCPAT_OUTPUTS}/${md}/${n}_threads/${FOLDER}>${MCPAT_OUTPUTS}/${md}/${n}_threads/${FOLDER}/energy.total"
+
+        echo $cmd
+        /bin/bash -c "$cmd"
+    done
+  done
+done
+

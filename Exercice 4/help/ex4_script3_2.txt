@@ -1,0 +1,39 @@
+#change the following paths:
+
+SNIPER_EXE=/home/mary/advcomparch_ex4/sniper-7.3/run-sniper
+SNIPER_CONFIG=/home/mary/advcomparch_ex4/help/ask4.cfg
+OUTPUT_DIR_BASE=/home/mary/advcomparch_ex4/outputs
+LOCKS_DIR=/home/mary/advcomparch_ex4/help/locks
+MAKE_DIR=/home/mary/advcomparch_ex4/help/
+
+
+declare -a modes=(TAS_CAS TAS_TS TTAS_CAS TTAS_TS MUTEX)
+TOPOLOGY="share-all"
+
+
+for MODE in "${modes[@]}";do
+
+mkfile_mode="-D${MODE}"
+sed_cmd="sed -i '8s/.*/LFLAG ?= ${mkfile_mode} /' ${MAKE_DIR}/Makefile"
+/bin/bash -c "${sed_cmd}"
+/bin/bash -c "make clean;"
+/bin/bash -c "make;"
+
+
+OUTDIR="${OUTPUT_DIR_BASE}/3_2/${TOPOLOGY}/${MODE}"
+CMD="${SNIPER_EXE} -c ${SNIPER_CONFIG} -n 4 -d ${OUTDIR} --roi \
+-g --perf_model/l1_icache/shared_cores=1 \
+-g --perf_model/l1_dcache/shared_cores=1 \
+-g --perf_model/l2_cache/shared_cores=4 \
+-g --perf_model/l3_cache/shared_cores=4 --\
+ ${LOCKS_DIR} 4 1000 1"
+
+echo "${CMD}"
+/bin/bash -c "$CMD"
+#time ${CMD}
+		
+		
+done
+
+
+

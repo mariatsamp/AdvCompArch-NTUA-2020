@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#Note: Change paths to be the correct for your PC.
+SIM_OUTPUTS=/home/mary/advcomparch_ex4/outputs/3_2
+MCPAT_OUTPUTS=/home/mary/advcomparch_ex4/mcpat_outputs/3_2
+MCPAT_PY_FILE=/home/mary/advcomparch_ex4/sniper-7.3/tools/advcomparch_mcpat.py
+
+declare -a topologies=("share-all" "share-L3" "share-nothing")
+declare -a modes=(MUTEX TAS_CAS TAS_TS TTAS_CAS TTAS_TS)
+
+for t in "${topologies[@]}"; do
+  for md in "${modes[@]}"; do  
+    cd $SIM_OUTPUTS/${t}/${m}
+    mkdir $MCPAT_OUTPUTS/${t}
+    mkdir $MCPAT_OUTPUTS/${t}/${md}
+
+   cmd="${MCPAT_PY_FILE} -d ${SIM_OUTPUTS}/${t}/${md} -t total -o ${MCPAT_OUTPUTS}/${t}/${md}>${MCPAT_OUTPUTS}/${t}/${md}/energy.total"
+
+        echo $cmd
+        /bin/bash -c "$cmd"
+    done
+done
+
